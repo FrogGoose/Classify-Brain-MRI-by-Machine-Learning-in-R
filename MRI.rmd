@@ -57,3 +57,30 @@ grid.raster(Original.MRI.csf)
 ```
 
 Now get the data to be classified ready.
+
+```{r,echo=TRUE, warning=FALSE}
+n =sum(as.numeric(Original.MRI.white.matter[,,1])+as.numeric(Original.MRI.grey.matter[,,1])+as.numeric(Original.MRI.csf[,,1])) #total pixels to be classified
+index = 1
+mydata=matrix(nrow=n,ncol=25)
+for (i in (1:dim(Original.MRI)[1])){
+  for (j in (1:dim(Original.MRI)[2])){
+    if (!!Original.MRI.white.matter[i,j,1] || !!Original.MRI.grey.matter[i,j,1] || !!Original.MRI.csf[i,j,1]){
+      if (index==1){
+        print(i)
+        print(j)
+      }
+      mydata[index,]=as.vector(Original.MRI[(i-2):(i+2),(j-2):(j+2),1])
+      index=index+1
+    }
+  }
+}
+```
+
+Visualize the first block 
+```{r,echo=TRUE,warning=FALSE}
+MRI.vis.1=Original.MRI
+MRI.vis.1[(58-2):(58+2),(876-2):(876+2),1]*255
+MRI.vis.1[(58-2):(58+2),(876-2):(876+2),]=c(1,1,1)
+grid.raster(MRI.vis.1)
+```
+
