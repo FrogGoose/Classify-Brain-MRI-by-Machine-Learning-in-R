@@ -66,3 +66,45 @@ grid.raster(Original.MRI.csf)
 ![](MRI_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
 Now get the data to be classified ready.
+
+``` r
+n =sum(as.numeric(Original.MRI.white.matter[,,1])+as.numeric(Original.MRI.grey.matter[,,1])+as.numeric(Original.MRI.csf[,,1])) #total pixels to be classified
+index = 1
+mydata=matrix(nrow=n,ncol=25)
+for (i in (1:dim(Original.MRI)[1])){
+  for (j in (1:dim(Original.MRI)[2])){
+    if (!!Original.MRI.white.matter[i,j,1] || !!Original.MRI.grey.matter[i,j,1] || !!Original.MRI.csf[i,j,1]){
+      if (index==1){
+        print(i)
+        print(j)
+      }
+      mydata[index,]=as.vector(Original.MRI[(i-2):(i+2),(j-2):(j+2),1])
+      index=index+1
+    }
+  }
+}
+```
+
+    ## [1] 58
+    ## [1] 876
+
+Visualize the first block
+
+``` r
+MRI.vis.1=Original.MRI
+MRI.vis.1[(58-2):(58+2),(876-2):(876+2),1]*255
+```
+
+    ##      [,1] [,2] [,3] [,4] [,5]
+    ## [1,]   34   34   29   29   29
+    ## [2,]   34   34   29   29   29
+    ## [3,]  108  108  139  139  139
+    ## [4,]  108  108  139  139  139
+    ## [5,]  108  108  139  139  139
+
+``` r
+MRI.vis.1[(58-2):(58+2),(876-2):(876+2),]=c(1,1,1)
+grid.raster(MRI.vis.1)
+```
+
+![](MRI_files/figure-markdown_github/unnamed-chunk-7-1.png)
