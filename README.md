@@ -64,3 +64,5 @@ grid.raster(Original.MRI.csf)
 ```
 
 ![](MRI_files/figure-markdown_github/unnamed-chunk-5-1.png)
+
+Now get the data to be classified ready.
