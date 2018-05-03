@@ -84,3 +84,87 @@ MRI.vis.1[(58-2):(58+2),(876-2):(876+2),]=c(1,1,1)
 grid.raster(MRI.vis.1)
 ```
 
+So now we have the data to be clustered in 'mydata'. 
+
+#K mean Method
+k-means clustering aims to partition n observations into k clusters in which each observation belongs to the cluster with the nearest mean, serving as a prototype of the cluster. 
+Drawbacks: 
+1: Difficult	to	predict	the	number of clusters (K-Value)	
+2: IniHal	seeds	have a strong	impact on the	final	results	
+3: Sensitve	to scale
+
+```{r, echo=TRUE, warning=FALSE}
+#data set size
+dim(mydata)
+
+#intial center (mean) with 3 clusters
+initial.point<-matrix(rnorm(75,0.5,0.5),3,25) 
+initial.point1<-initial.point
+
+#find the mean which is closet to current data point
+label.fun<-function(x,startpoint){#x is a vector with size 25 and startpoint is a 3 by 25 matrix
+  my.distance<-dist(rbind(x,startpoint))[1:3]#computer distance between x and each row of starpoint
+  return(which.min(my.distance))
+}
+
+#K means Algorithm
+library(parallel)
+cl<-makeCluster(getOption("cl.cores", 4))
+repeat{
+#give the lable of the mean which is closest to each data point
+data.label<-parApply(cl=cl,mydata,1,FUN=label.fun,startpoint=initial.point)
+#update means (initial.point1)
+initial.point1[1,]<-colMeans(mydata[which(data.label==1),])
+initial.point1[2,]<-colMeans(mydata[which(data.label==2),])
+initial.point1[3,]<-colMeans(mydata[which(data.label==3),])
+bb<-initial.point
+initial.point<-initial.point1
+initial.point1<-bb
+    if(all(initial.point==initial.point1)){#if 3 means are same, stop
+      break
+    }
+}
+stopCluster(cl)
+final.means<-initial.point1
+final.labels<-data.label
+```
+
+Display the segmentation by K means
+
+```{r,echo=TRUE, warning=FALSE}
+means.order<-rowMeans(final.means)
+a1<-which.max(means.order)
+a2<-which.min(means.order)
+a3<-setdiff(c(1,2,3),c(a1,a2))
+Kmeans.MRI<-Original.MRI
+t<-1
+for (i in 1:dim(Original.MRI)[1]){
+  for (j in 1:dim(Original.MRI)[2]){
+    if (!!Original.MRI.white.matter[i,j,2] || !!Original.MRI.csf[i,j,1] || !!Original.MRI.grey.matter[i,j,3]){
+      if(final.labels[t]==a3){
+        Kmeans.MRI[(i-2):(i+2),(j-2):(j+2),1:3]<-c(0,0,1)
+      }
+      if(final.labels[t]==a1){
+        Kmeans.MRI[(i-2):(i+2),(j-2):(j+2),1:3]<-c(0,1,0)
+      }
+      if(final.labels[t]==a2){
+        Kmeans.MRI[(i-2):(i+2),(j-2):(j+2),1:3]<-c(1,0,0)
+      }
+      t<-t+1
+    }
+  }
+}
+```
+
+Visualize K means segmentation.
+
+```{r,echo=TRUE}
+grid.raster(Kmeans.MRI)
+```
+
+Look at the true segmentation again and we can see that the K means segmentation is doing very well.
+
+```{r,echo=TRUE}
+grid.raster(Segmented.MRI)
+```
+
