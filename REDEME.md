@@ -126,6 +126,7 @@ dim(mydata)
 
 ``` r
 #intial center (mean) with 3 clusters
+set.seed(201851)
 initial.point<-matrix(rnorm(75,0.5,0.5),3,25) 
 initial.point1<-initial.point
 
