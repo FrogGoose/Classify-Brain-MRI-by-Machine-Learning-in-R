@@ -132,7 +132,7 @@ initial.point1<-initial.point
 
 #find the mean which is closet to current data point
 label.fun<-function(x,startpoint){#x is a vector with size 25 and startpoint is a 3 by 25 matrix
-  my.distance<-dist(rbind(x,startpoint))[1:3]#computer distance between x and each row of starpoint
+  my.distance<-dist(rbind(x,startpoint))[1:3]#compute distance between x and each row of starpoint
   return(which.min(my.distance))
 }
 
